@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Armenian Alias Game</title>
+  <!-- Google Font for a modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .container {
+      max-width: 750px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      flex: 1;
+      margin: 0;
+      font-size: 1.8em;
+      color: #2c3e50;
+    }
+    /* Form and Input Styles */
+    label {
+      font-weight: 500;
+      color: #2c3e50;
+    }
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 5px 0 15px;
+      border: 1px solid #ccd6e0;
+      border-radius: 6px;
+      font-size: 1em;
+      outline: none;
+      transition: border 0.3s;
+    }
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      border-color: #2980b9;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: none;
+      border-radius: 6px;
+      background: #2980b9;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    button:hover {
+      background: #1c6391;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    /* Quit Game Button */
+    #quitGame {
+      width: auto;
+      padding: 8px 14px;
+      background: #e74c3c;
+      color: #fff;
+      font-weight: 500;
+      border-radius: 4px;
+    }
+    /* Teams Container */
+    #teamsContainer {
+      margin-bottom: 15px;
+    }
+    .teamInput {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .teamInput input {
+      flex: 1;
+      /* Set a fixed height if needed */
+      height: 35px;
+      font-size: 1em;
+    }
+    .removeTeamButton {
+      margin-left: 5px;
+      background: #e74c3c;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      padding: 0;
+      /* Fixed size for a compact button */
+      width: 30px;
+      height: 30px;
+      font-size: 1em;
+      line-height: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .removeTeamButton:hover {
+      background: #c0392b;
+    }
+    /* Game Info */
+    #scoreDisplay {
+      margin-top: 10px;
+      font-weight: 500;
+      text-align: center;
+    }
+    #timerDisplay {
+      font-weight: 700;
+    }
+    #wordsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .word {
+      background: #ecf0f1;
+      padding: 12px 18px;
+      margin: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+      flex: 1 0 40%;
+      text-align: center;
+    }
+    .word:hover {
+      background: #d0dfe6;
+      transform: translateY(-2px);
+    }
+    .guessed {
+      background: #2ecc71;
+      color: #fff;
+      text-decoration: line-through;
+      cursor: pointer;
+    }
+    /* Transition Screen */
+    #transition {
+      text-align: center;
+      padding: 20px;
+      border: 2px solid #bdc3c7;
+      border-radius: 8px;
+      background: #ecf0f1;
+      margin: 20px 0;
+    }
+    /* Math Challenge Overlay */
+    #mathChallenge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(250,250,250,0.95);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      padding: 20px;
+      z-index: 100;
+    }
+    #mathChallenge input[type="text"] {
+      width: 80%;
+      margin: 10px 0;
+    }
+    /* Quit Confirmation Overlay */
+    #quitConfirmation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+    #quitConfirmation .confirmBox {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    #quitConfirmation button {
+      width: auto;
+      margin: 0 10px;
+      padding: 8px 12px;
+    }
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      .word {
+        flex: 1 0 45%;
+        padding: 8px 10px;
+      }
+      button, input[type="number"], input[type="text"] {
+        font-size: 1em;
+        padding: 8px;
+      }
+      #quitGame {
+        top: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Armenian Alias Game</h1>
+      <!-- Quit Game button appears only during gameplay -->
+      <button id="quitGame" class="hidden">Quit Game</button>
+    </div>
+
+    <!-- Game Setup -->
+    <div id="setup">
+      <h2>Game Setup</h2>
+      <form id="setupForm">
+        <label for="roundTime">Round Duration (seconds):</label>
+        <input type="number" id="roundTime" value="60" min="10" required>
+        <label for="targetScore">Target Score:</label>
+        <input type="number" id="targetScore" value="10" min="1" required>
+        <p>Each round will display <strong>8 words</strong> at once.</p>
+        <div id="teamsContainer">
+          <!-- Two default team inputs -->
+          <div class="teamInput">
+            <input type="text" placeholder="Enter Team 1 Name" required>
+          </div>
+          <div class="teamInput">
+            <input type="text" placeholder="Enter Team 2 Name" required>
+          </div>
+        </div>
+        <button type="button" id="addTeamButton">Add New Team</button>
+        <button type="submit">Start Game</button>
+      </form>
+    </div>
+
+    <!-- Game Play Area -->
+    <div id="game" class="hidden">
+      <h2 id="currentTeamHeading"></h2>
+      <div id="wordsContainer"></div>
+      <p style="text-align: center;">Time left: <span id="timerDisplay"></span> seconds</p>
+      <div id="scoreDisplay"></div>
+      <div style="text-align: center;">
+        <button id="skipButton">Skip Set</button>
+      </div>
+    </div>
+
+    <!-- Transition Screen -->
+    <div id="transition" class="hidden">
+      <h2>Round Over!</h2>
+      <div id="transitionScore"></div>
+      <div id="nextTeamInfo"></div>
+      <div style="text-align: center; margin-top: 15px;">
+        <button id="startNextRoundButton">Start Next Round</button>
+      </div>
+    </div>
+
+    <!-- Math Challenge Overlay -->
+    <div id="mathChallenge">
+      <h3>Solve This Math Puzzle</h3>
+      <p id="mathQuestion"></p>
+      <input type="text" id="mathAnswer" placeholder="Your answer">
+      <button id="mathSubmitButton">Submit Answer</button>
+      <p id="mathFeedback" style="color: red;"></p>
+    </div>
+
+    <!-- Quit Confirmation Overlay -->
+    <div id="quitConfirmation">
+      <div class="confirmBox">
+        <h3>Are you sure you want to quit the game?</h3>
+        <button id="confirmQuit">Yes, Quit</button>
+        <button id="cancelQuit">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="results" class="hidden">
+      <h2>Game Over!</h2>
+      <div id="finalScores"></div>
+      <div style="text-align: center;">
+        <button onclick="location.reload()">Restart Game</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let teams = [];
+    let teamIndex = 0;
+    let roundTime = 60;
+    let targetScore = 10;
+    const wordsPerSet = 8;
+    let timer;
+    let timeRemaining = 0;
+    let finalRoundTriggered = false;
+    let roundsPlayed = 0;
+    let mathCorrectAnswer = 0;
+
+    // Array to track used words
+    let usedWords = [];
+
+    // Expanded word list
+    let words = [
+      "Սեր", "Հույս", "Երկիր", "Բարեկամ", "Գեղեցկություն", "Դպրոց", "Երևան", "Զանգ",
+      "Թռչուն", "Ժամ", "Լուսին", "Խաղ", "Ծառ", "Կիրք", "Հող", "Ձախ", "Ճամբար", "Մայր", "Նավ",
+      "Շուն", "Պատասխան", "Ջուր", "Ռեստորան", "Սև", "Վարդ", "Տուն", "Ռեժիմ", "Փոքր", "Քաղաք",
+      "Օդ", "Ֆիլմ", "Կյանք", "Սիրտ", "Հանդիպում", "Հիշողություն", "Համագործակթություն", "Հավասարություն",
+      "Հզոր", "Հուշ", "Հնչյուն", "Հեռուստացույց", "Հաղթանակ", "հետաքրքրություն", "համալիր", "հոգի",
+      "հիմնաբանություն", "հաստատ", "հնարավորություն", "հաջողություն", "հաղորդ", "հումոր", "հավաք",
+      "համար", "հավատանք", "համբերություն", "հաստատություն", "հանգստություն", "հետևանք", "հաղորդագրություն",
+      "հայտարարություն", "դժվարություն", "հասկանալ", "հոգեբանություն", "համակարգ", "համաշխարհային",
+      "գիտելիք", "բարի", "միշտ", "համաձայն", "հարց", "հայտնաբերում", "հիմք", "հանդիպել",
+      "հայտնաբերվում", "հրավիրյալ", "հաճախորդ", "հետադարձ", "համատեղ", "հավերժ", "հիշատակ",
+      "հայաստան", "համակեց", "համոզիչ", "հանգեցնում", "հավաքածու", "հինգ", "թողնել", "թարմ",
+      "թափառ", "թերթ", "թուլ", "թարմություն", "թուղթ", "թև", "թանգարան", "մեծ", "բարձր",
+      "թեժ", "հպարտ", "գույն", "երազ", "թողմ", "ծանոթ", "համբույր", "վերջ", "ժամանակ", "համեմատ",
+      "հայտնություն", "հետևաբար", "հաջորդ", "հիմնական", "կենս", "համոզում", "հուսահատ",
+      "հանդիպումներ", "հավանականություն", "հազար", "մայիս", "օրյա", "կենտրոն", "պատրաստ", "կարմիր",
+      "կանաչ", "չար", "հանգմ", "հանգ", "համբարձ", "հանգարար",
+      "YouTube", "TikTok", "Facebook", "Instagram", "Twitter", "Snapchat", "LinkedIn", "Google", "Amazon", "Apple", 
+      "Microsoft", "Netflix", "Spotify", "Uber", "Airbnb", "Tesla", "Samsung", "Intel", "Adobe", "Oracle", "Cisco", 
+      "IBM", "Dell", "HP", "NVIDIA", "LG", "Sony", "Panasonic", "Xiaomi", "Huawei", "Reddit", "Pinterest", "WhatsApp", 
+      "WeChat", "Zoom", "Slack", "Dropbox", "PayPal", "eBay", "Alibaba", "Steam", "Discord", "Twitch", "WordPress", 
+      "GitHub", "Bitbucket", "Fiverr", "Upwork", "Salesforce", "Shopify", "Square", "Stripe", "ZoomInfo", "SAP", 
+      "Accenture", "Capgemini", "Infosys", "Wipro", "Tata", "Bosch", "Siemens", "Philips", "GE", "Coca-Cola", 
+      "Pepsi", "McDonald's", "Burger King", "KFC", "Starbucks", "Subway", "Domino's", "Nike", "Adidas", "Puma", 
+      "Reebok", "Under Armour", "New Balance", "H&M", "Zara", "Uniqlo", "Gucci", "Prada", "Louis Vuitton", "Chanel", 
+      "Hermès", "Burberry", "Versace", "Rolex", "Omega", "Cartier", "Tiffany", "Dior", "Fendi", "Givenchy"
+    ];
+
+    // Utility: Shuffle an array
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Setup form event handler
+    document.getElementById("setupForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      roundTime = parseInt(document.getElementById("roundTime").value);
+      targetScore = parseInt(document.getElementById("targetScore").value);
+      const teamInputs = document.querySelectorAll(".teamInput input");
+      teams = [];
+      teamInputs.forEach((input, index) => {
+        if (input.value.trim() !== "") {
+          teams.push({ name: "Team " + (index + 1) + ": " + input.value.trim(), score: 0 });
+        }
+      });
+      if (teams.length < 2) {
+        alert("Please add at least two teams.");
+        return;
+      }
+      document.getElementById("setup").classList.add("hidden");
+      // Show Quit Game button now that game starts
+      document.getElementById("quitGame").classList.remove("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      startRound();
+    });
+
+    // Add new team input with a remove option
+    document.getElementById("addTeamButton").addEventListener("click", function() {
+      const container = document.getElementById("teamsContainer");
+      const newDiv = document.createElement("div");
+      newDiv.classList.add("teamInput");
+      newDiv.innerHTML = '<input type="text" placeholder="Enter team name" required> <button type="button" class="removeTeamButton">X</button>';
+      container.appendChild(newDiv);
+      newDiv.querySelector(".removeTeamButton").addEventListener("click", function() {
+        container.removeChild(newDiv);
+      });
+    });
+
+    // Starts a round
+    function startRound() {
+      timeRemaining = roundTime;
+      roundsPlayed++;
+      document.getElementById("currentTeamHeading").innerText = teams[teamIndex].name + " - Your Turn";
+      updateScoreDisplay();
+      document.getElementById("transition").classList.add("hidden");
+      document.getElementById("mathChallenge").style.display = "none";
+      document.getElementById("game").classList.remove("hidden");
+      startTimer();
+      loadNewWordSet();
+    }
+
+    // Loads a new set of words ensuring no repeats
+    function loadNewWordSet() {
+      let availableWords = words.filter(word => !usedWords.includes(word));
+      if (availableWords.length < wordsPerSet) {
+        console.warn("Not enough new words available; using remaining words.");
+      }
+      const currentSet = shuffle(availableWords).slice(0, wordsPerSet);
+      usedWords.push(...currentSet);
+      renderWords(currentSet);
+    }
+
+    // Renders words and sets up toggle events
+    function renderWords(wordSet) {
+      const container = document.getElementById("wordsContainer");
+      container.innerHTML = "";
+      wordSet.forEach(word => {
+        let wordEl = document.createElement("div");
+        wordEl.classList.add("word");
+        wordEl.innerText = word;
+        wordEl.addEventListener("click", function() {
+          if (wordEl.classList.contains("guessed")) {
+            wordEl.classList.remove("guessed");
+            teams[teamIndex].score--;
+            updateScoreDisplay();
+          } else {
+            wordEl.classList.add("guessed");
+            teams[teamIndex].score++;
+            updateScoreDisplay();
+            checkWinningCondition();
+          }
+          const guessedCount = document.querySelectorAll('#wordsContainer .word.guessed').length;
+          if (guessedCount === wordSet.length && timeRemaining > 0) {
+            setTimeout(loadNewWordSet, 500);
+          }
+        });
+        container.appendChild(wordEl);
+      });
+    }
+
+    // Starts the round timer
+    function startTimer() {
+      document.getElementById("timerDisplay").innerText = timeRemaining;
+      timer = setInterval(function() {
+        timeRemaining--;
+        document.getElementById("timerDisplay").innerText = timeRemaining;
+        if (timeRemaining <= 0) {
+          clearInterval(timer);
+          endRound();
+        }
+      }, 1000);
+    }
+
+    // Updates the score display
+    function updateScoreDisplay() {
+      let scoreText = teams.map(team => team.name + ": " + team.score).join(" | ");
+      document.getElementById("scoreDisplay").innerText = "Score: " + scoreText;
+    }
+
+    // When Skip Set is clicked, show math challenge overlay
+    document.getElementById("skipButton").addEventListener("click", function() {
+      showMathChallenge();
+    });
+
+    // Generates a math problem and shows the overlay
+    function showMathChallenge() {
+      let a = Math.floor(Math.random() * 21) - 10;
+      let b = Math.floor(Math.random() * 21) - 10;
+      let operator = Math.random() < 0.5 ? "+" : "-";
+      mathCorrectAnswer = operator === "+" ? a + b : a - b;
+      document.getElementById("mathQuestion").textContent = `Solve: ${a} ${operator} ${b} = ?`;
+      document.getElementById("mathAnswer").value = "";
+      document.getElementById("mathFeedback").textContent = "";
+      document.getElementById("mathChallenge").style.display = "flex";
+    }
+
+    // Math challenge submit event
+    document.getElementById("mathSubmitButton").addEventListener("click", function() {
+      let userAnswer = parseInt(document.getElementById("mathAnswer").value);
+      if (userAnswer === mathCorrectAnswer) {
+        document.getElementById("mathChallenge").style.display = "none";
+        loadNewWordSet();
+      } else {
+        document.getElementById("mathFeedback").textContent = "Incorrect answer. Please try again.";
+      }
+    });
+
+    // Checks if the current team reached target score
+    function checkWinningCondition() {
+      if (!finalRoundTriggered && teams[teamIndex].score >= targetScore) {
+        finalRoundTriggered = true;
+      }
+    }
+
+    // Ends the round and shows the transition screen
+    function endRound() {
+      clearInterval(timer);
+      if (roundsPlayed % teams.length === 0 && finalRoundTriggered) {
+        showTransition(true);
+      } else {
+        showTransition(false);
+      }
+    }
+
+    // Shows the transition screen; if endGameNow is true, game should end.
+    function showTransition(endGameNow) {
+      teamIndex = (teamIndex + 1) % teams.length;
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("transitionScore").textContent = document.getElementById("scoreDisplay").textContent;
+      if (endGameNow) {
+        document.getElementById("nextTeamInfo").textContent = "All teams have played equal rounds.";
+        document.getElementById("startNextRoundButton").textContent = "End Game";
+      } else {
+        document.getElementById("nextTeamInfo").textContent = "Next Turn: " + teams[teamIndex].name;
+        document.getElementById("startNextRoundButton").textContent = "Start Next Round";
+      }
+      document.getElementById("transition").classList.remove("hidden");
+    }
+
+    // Next Round button event
+    document.getElementById("startNextRoundButton").addEventListener("click", function() {
+      if (roundsPlayed % teams.length === 0 && finalRoundTriggered) {
+        endGame();
+      } else {
+        startRound();
+      }
+    });
+
+    // Quit Game button event – show confirmation overlay
+    document.getElementById("quitGame").addEventListener("click", function() {
+      document.getElementById("quitConfirmation").style.display = "flex";
+    });
+
+    // Quit Confirmation events
+    document.getElementById("confirmQuit").addEventListener("click", function() {
+      document.getElementById("quitConfirmation").style.display = "none";
+      endGame();
+    });
+    document.getElementById("cancelQuit").addEventListener("click", function() {
+      document.getElementById("quitConfirmation").style.display = "none";
+    });
+
+    // Ends the game and shows final scores and winner info
+    function endGame() {
+      clearInterval(timer);
+      // Hide all game-related screens
+      document.getElementById("game").classList.add("hidden");
+      document.getElementById("transition").classList.add("hidden");
+      document.getElementById("mathChallenge").style.display = "none";
+      // Hide Quit Game button
+      document.getElementById("quitGame").classList.add("hidden");
+      let maxScore = Math.max(...teams.map(t => t.score));
+      let winners = teams.filter(t => t.score === maxScore);
+      let winnerMessage = winners.length === 1 ? winners[0].name + " wins!" : "It's a tie between: " + winners.map(t => t.name).join(", ");
+      let finalScoresHtml = `<h3>Final Scores</h3><ul>`;
+      teams.forEach(team => {
+        finalScoresHtml += `<li>${team.name}: ${team.score}</li>`;
+      });
+      finalScoresHtml += `</ul><h3>${winnerMessage}</h3>`;
+      document.getElementById("results").innerHTML = finalScoresHtml + `<div style="text-align: center;"><button onclick="location.reload()">Restart Game</button></div>`;
+      document.getElementById("results").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
